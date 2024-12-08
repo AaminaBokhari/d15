@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.react-calendar {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.react-calendar__tile--active {
+  background: #3b82f6 !important;
+  color: white !important;
+  border-radius: 0.25rem;
+}
+
+.react-calendar__tile:enabled:hover {
+  background-color: #93c5fd !important;
+  border-radius: 0.25rem;
+}
