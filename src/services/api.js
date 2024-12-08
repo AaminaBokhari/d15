@@ -8,6 +8,7 @@ const api = axios.create({
   }
 });
 
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('doctor_token');
@@ -21,28 +22,57 @@ api.interceptors.request.use(
   }
 );
 
+// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const errorMessage = error.response?.data?.message || 'An error occurred';
+    const errorMessage = error.response?.data?.message || 'An unexpected error occurred';
     
     if (error.response?.status === 401) {
       localStorage.removeItem('doctor_token');
       window.location.href = '/login';
     }
-
-    toast.error(errorMessage);
-    return Promise.reject(error);
+    
+    return Promise.reject({
+      message: errorMessage,
+      status: error.response?.status,
+      data: error.response?.data
+    });
   }
 );
 
-export const auth = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
-  verify: () => api.get('/auth/verify')
+// Auth endpoints
+const auth = {
+  login: async (credentials) => {
+    try {
+      const response = await api.post('/auth/login', credentials);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  register: async (userData) => {
+    try {
+      const response = await api.post('/auth/register', userData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  verify: async () => {
+    try {
+      const response = await api.get('/auth/verify');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
-export const appointments = {
+// Appointments endpoints
+const appointments = {
   getAll: () => api.get('/appointments'),
   create: (data) => api.post('/appointments', data),
   update: (id, data) => api.patch(`/appointments/${id}`, data),
@@ -50,21 +80,25 @@ export const appointments = {
   reschedule: (id, dateTime) => api.patch(`/appointments/${id}/reschedule`, { dateTime })
 };
 
-export const medicalHistory = {
+// Medical history endpoints
+const medicalHistory = {
   getAll: () => api.get('/medical-history'),
   getForPatient: (patientId) => api.get(`/medical-history/patient/${patientId}`),
   create: (data) => api.post('/medical-history', data)
 };
 
-export const prescriptions = {
+// Prescriptions endpoints
+const prescriptions = {
   getAll: () => api.get('/prescriptions'),
   create: (data) => api.post('/prescriptions', data),
   getById: (id) => api.get(`/prescriptions/${id}`)
 };
 
-export default {
+export {
   auth,
   appointments,
   medicalHistory,
   prescriptions
 };
+
+export default api;

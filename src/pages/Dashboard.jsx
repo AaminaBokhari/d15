@@ -1,15 +1,24 @@
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 import PatientStats from '../components/Dashboard/PatientStats';
 import AppointmentQueue from '../components/Dashboard/AppointmentQueue';
 import RecentActivity from '../components/Dashboard/RecentActivity';
 import DashboardStats from '../components/Dashboard/DashboardStats';
 
 function Dashboard() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return null; // or return a loading spinner
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Welcome Back, Dr. Smith</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Welcome Back, {user.name}
+          </h1>
           <p className="text-gray-600 mt-1">Here's what's happening with your patients today</p>
         </div>
         <div className="text-right">

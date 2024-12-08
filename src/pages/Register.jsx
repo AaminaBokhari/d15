@@ -1,24 +1,25 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { auth } from '../services/api';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 function Register() {
-  const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     specialization: '',
-    licenseNumber: ''
+    licenseNumber: '',
+    role: 'doctor'
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -26,20 +27,17 @@ function Register() {
     setIsLoading(true);
 
     try {
-      const response = await auth.register({
-        ...formData,
-        role: 'doctor'
-      });
-      
-      localStorage.setItem('doctor_token', response.data.token);
-      toast.success('Registration successful!');
-      navigate('/');
+      await register(formData);
     } catch (error) {
       console.error('Registration error:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

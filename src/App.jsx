@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -12,66 +12,69 @@ import MedicalHistory from './pages/MedicalHistory';
 import Chat from './pages/Chat';
 import SymptomChecker from './pages/SymptomChecker';
 import Sidebar from './components/Layout/Sidebar';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
-function App() {
-  const isAuthenticated = !!localStorage.getItem('doctor_token');
+function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
+  return user ? children : <Navigate to="/login" />;
+}
+
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
+  return !user ? children : <Navigate to="/" />;
+}
+
+function AppContent() {
+  const { user } = useAuth();
 
   return (
-    <AuthProvider>
-      <Router>
-        <div className="flex h-screen bg-gray-100">
-          {isAuthenticated && <Sidebar />}
-          <main className={`flex-1 overflow-y-auto p-6 ${!isAuthenticated ? 'w-full' : ''}`}>
-            <Routes>
-              <Route 
-                path="/login" 
-                element={!isAuthenticated ? <Login /> : <Navigate to="/" />} 
-              />
-              <Route 
-                path="/register" 
-                element={!isAuthenticated ? <Register /> : <Navigate to="/" />} 
-              />
-              <Route
-                path="/"
-                element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/appointments"
-                element={isAuthenticated ? <Appointments /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/prescriptions"
-                element={isAuthenticated ? <Prescriptions /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/medical-history"
-                element={isAuthenticated ? <MedicalHistory /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/chat"
-                element={isAuthenticated ? <Chat /> : <Navigate to="/login" />}
-              />
-              <Route
-                path="/symptom-checker"
-                element={isAuthenticated ? <SymptomChecker /> : <Navigate to="/login" />}
-              />
-            </Routes>
-          </main>
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        </div>
-      </Router>
-    </AuthProvider>
+    <div className="flex h-screen bg-gray-100">
+      {user && <Sidebar />}
+      <main className={`flex-1 overflow-y-auto p-6 ${!user ? 'w-full' : ''}`}>
+        <Routes>
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/appointments" element={<PrivateRoute><Appointments /></PrivateRoute>} />
+          <Route path="/prescriptions" element={<PrivateRoute><Prescriptions /></PrivateRoute>} />
+          <Route path="/medical-history" element={<PrivateRoute><MedicalHistory /></PrivateRoute>} />
+          <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
+          <Route path="/symptom-checker" element={<PrivateRoute><SymptomChecker /></PrivateRoute>} />
+        </Routes>
+      </main>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 
