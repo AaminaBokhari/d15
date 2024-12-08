@@ -18,8 +18,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('doctor_token');
       if (token) {
-        const { user } = await auth.verify();
-        setUser(user);
+        const response = await auth.verify();
+        setUser(response.user);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -31,11 +31,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const { token, user } = await auth.login(credentials);
+      const response = await auth.login(credentials);
+      const { token, user } = response;
       localStorage.setItem('doctor_token', token);
       setUser(user);
       toast.success('Login successful!');
-      navigate('/');
+      navigate('/', { replace: true });
       return user;
     } catch (error) {
       toast.error(error.message || 'Login failed');
@@ -45,11 +46,12 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const { token, user } = await auth.register(userData);
+      const response = await auth.register(userData);
+      const { token, user } = response;
       localStorage.setItem('doctor_token', token);
       setUser(user);
       toast.success('Registration successful!');
-      navigate('/');
+      navigate('/', { replace: true });
       return user;
     } catch (error) {
       toast.error(error.message || 'Registration failed');
@@ -60,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('doctor_token');
     setUser(null);
-    navigate('/login');
+    navigate('/login', { replace: true });
     toast.success('Logged out successfully');
   };
 

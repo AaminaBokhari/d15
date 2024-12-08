@@ -24,7 +24,7 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error) => {
     const errorMessage = error.response?.data?.message || 'An unexpected error occurred';
     
@@ -33,6 +33,7 @@ api.interceptors.response.use(
       window.location.href = '/login';
     }
     
+    toast.error(errorMessage);
     return Promise.reject({
       message: errorMessage,
       status: error.response?.status,
@@ -43,32 +44,9 @@ api.interceptors.response.use(
 
 // Auth endpoints
 const auth = {
-  login: async (credentials) => {
-    try {
-      const response = await api.post('/auth/login', credentials);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  
-  register: async (userData) => {
-    try {
-      const response = await api.post('/auth/register', userData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  
-  verify: async () => {
-    try {
-      const response = await api.get('/auth/verify');
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  }
+  login: (credentials) => api.post('/auth/login', credentials),
+  register: (userData) => api.post('/auth/register', userData),
+  verify: () => api.get('/auth/verify')
 };
 
 // Appointments endpoints
