@@ -5,7 +5,6 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { apiLimiter } from '../middleware/rateLimiter.js';
 import { logger } from '../utils/logger.js';
-import { errorHandler, notFound } from '../middleware/errorHandler.js';
 
 export const configureApp = (app) => {
   // Trust proxy - required for rate limiter
@@ -41,8 +40,4 @@ export const configureApp = (app) => {
 
   // Rate limiting
   app.use('/api/', apiLimiter);
-
-  // Error handling
-  app.use(errorHandler);
-  app.use(notFound);
 };
