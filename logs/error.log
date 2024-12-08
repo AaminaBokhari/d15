@@ -1,0 +1,2 @@
+{"level":"error","message":"Login error: Operation `users.findOne()` buffering timed out after 10000ms","timestamp":"2024-12-07T23:57:05.107Z"}
+{"level":"error","message":"Login error: Operation `users.findOne()` buffering timed out after 10000ms","timestamp":"2024-12-08T00:00:41.897Z"}
