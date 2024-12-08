@@ -5,15 +5,18 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { apiLimiter } from '../middleware/rateLimiter.js';
 import { logger } from '../utils/logger.js';
+import { errorHandler, notFound } from '../middleware/errorHandler.js';
 
 export const configureApp = (app) => {
-  // Trust proxy - required for rate limiter to work properly
+  // Trust proxy - required for rate limiter
   app.enable('trust proxy');
   
   // Security middleware
   app.use(cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   }));
   
   app.use(express.json());
@@ -38,4 +41,8 @@ export const configureApp = (app) => {
 
   // Rate limiting
   app.use('/api/', apiLimiter);
+
+  // Error handling
+  app.use(errorHandler);
+  app.use(notFound);
 };

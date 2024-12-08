@@ -1,21 +1,17 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { configureApp } from './config/app.js';
 import { configureRoutes } from './config/routes.js';
 import connectDB from './config/database.js';
 import initializeSocket from './config/socket.js';
-import errorHandler from './middleware/errorHandler.js';
 import validateEnv from './config/validateEnv.js';
 import { logger } from './utils/logger.js';
 
-// Load and validate environment variables
-dotenv.config();
 validateEnv();
 
 const startServer = async () => {
   try {
-    // Initialize express app
     const app = express();
     const httpServer = createServer(app);
 
@@ -36,9 +32,6 @@ const startServer = async () => {
 
     // Configure routes
     configureRoutes(app);
-
-    // Error handler
-    app.use(errorHandler);
 
     const PORT = process.env.PORT || 3000;
     httpServer.listen(PORT, () => {
